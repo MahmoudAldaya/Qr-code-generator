@@ -84,17 +84,17 @@
         context.clearRect(0, 0, canvas.width, canvas.height);
 
         // Draw the new QR code on canvas
-        const qrSize = 200;
-        canvas.width = qrSize;
-        canvas.height = qrSize;
         const qrImg = new Image();
         qrImg.src = qr.createDataURL();
         qrImg.onload = function() {
-            context.drawImage(qrImg, 0, 0, qrSize, qrSize);
+            canvas.width = qrImg.width;
+            canvas.height = qrImg.height;
+            context.drawImage(qrImg, 0, 0);
 
-            // Create download link
+            // Create download link for the QR code image
+            const qrImageData = canvas.toDataURL('image/png');
             downloadLink.style.display = 'block';
-            downloadLink.href = canvas.toDataURL();
+            downloadLink.href = qrImageData;
             downloadLink.download = 'qrcode.png';
             downloadLink.textContent = 'Download QR Code';
         };
