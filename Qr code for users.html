@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        input[type="text"], input[type="email"], input[type="tel"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        canvas {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>QR Code Generator</h1>
+    <form id="userInfoForm">
+        <input type="text" id="name" placeholder="Enter your name" required>
+        <input type="email" id="email" placeholder="Enter your email" required>
+        <input type="tel" id="phone" placeholder="Enter your phone number" required>
+        <button type="submit">Generate QR Code</button>
+    </form>
+    <canvas id="qrcodeCanvas"></canvas>
+    <a id="downloadLink" style="display: none;">Download QR Code</a>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+    const form = document.getElementById('userInfoForm');
+    const canvas = document.getElementById('qrcodeCanvas');
+    const downloadLink = document.getElementById('downloadLink');
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        // Get user input
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const phone = document.getElementById('phone').value;
+
+        // Generate QR code data
+        const userInfo = `Name: ${name}, Email: ${email}, Phone: ${phone}`;
+
+        // Create QR code
+        const qr = qrcode(0, 'L');
+        qr.addData(userInfo);
+        qr.make();
+
+        // Clear previous QR code
+        const context = canvas.getContext('2d');
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw the new QR code on canvas
+        const qrSize = 200;
+        canvas.width = qrSize;
+        canvas.height = qrSize;
+        const qrImg = new Image();
+        qrImg.src = qr.createDataURL();
+        qrImg.onload = function() {
+            context.drawImage(qrImg, 0, 0, qrSize, qrSize);
+
+            // Create download link
+            downloadLink.style.display = 'block';
+            downloadLink.href = canvas.toDataURL();
+            downloadLink.download = 'qrcode.png';
+            downloadLink.textContent = 'Download QR Code';
+        };
+    });
+
+</body>
+</html>
