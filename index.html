@@ -40,6 +40,26 @@
         }
         canvas {
             margin-top: 20px;
+            border: 5px solid #28a745;
+            padding: 10px;
+            background-color: #ffffff;
+            border-radius: 10px;
+        }
+        #qrcodeCanvas {
+            width: 300px !important;
+            height: 300px !important;
+        }
+        a {
+            text-decoration: none;
+            color: white;
+            background-color: #007bff;
+            padding: 10px 20px;
+            display: inline-block;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        a:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
@@ -54,14 +74,19 @@
         <button type="submit">Generate QR Code</button>
     </form>
     <canvas id="qrcodeCanvas"></canvas>
-    <a id="downloadLink" style="display: none;">Download QR Code</a>
+    <a id="downloadImageLink" style="display: none;">Download as Image</a>
+    <a id="downloadPdfLink" style="display: none;">Download as PDF</a>
 </div>
 
+<!-- jsPDF for PDF generation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+
 <script>
     const form = document.getElementById('userInfoForm');
     const canvas = document.getElementById('qrcodeCanvas');
-    const downloadLink = document.getElementById('downloadLink');
+    const downloadImageLink = document.getElementById('downloadImageLink');
+    const downloadPdfLink = document.getElementById('downloadPdfLink');
 
     form.addEventListener('submit', function(event) {
         event.preventDefault();
@@ -87,16 +112,28 @@
         const qrImg = new Image();
         qrImg.src = qr.createDataURL();
         qrImg.onload = function() {
-            canvas.width = qrImg.width;
-            canvas.height = qrImg.height;
-            context.drawImage(qrImg, 0, 0);
+            const qrSize = 280;
+            canvas.width = qrSize;
+            canvas.height = qrSize;
+            context.drawImage(qrImg, 0, 0, qrSize, qrSize);
 
-            // Create download link for the QR code image
+            // Image download link
             const qrImageData = canvas.toDataURL('image/png');
-            downloadLink.style.display = 'block';
-            downloadLink.href = qrImageData;
-            downloadLink.download = 'qrcode.png';
-            downloadLink.textContent = 'Download QR Code';
+            downloadImageLink.style.display = 'block';
+            downloadImageLink.href = qrImageData;
+            downloadImageLink.download = 'qrcode.png';
+            downloadImageLink.textContent = 'Download as Image';
+
+            // PDF download link
+            downloadPdfLink.style.display = 'block';
+            downloadPdfLink.onclick = function() {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF();
+                pdf.text("QR Code", 20, 20);
+                pdf.addImage(qrImageData, 'PNG', 20, 30, 150, 150);
+                pdf.save('qrcode.pdf');
+            };
+            downloadPdfLink.textContent = 'Download as PDF';
         };
     });
 </script>
